@@ -1,0 +1,501 @@
+local Rayfield = loadstring(game:HttpGet('https://sirius.menu/rayfield'))()
+
+local Window = Rayfield:CreateWindow({
+    Name = "Eclipse︱Freemium",
+    LoadingTitle = "Loading Freemium Features...",
+    LoadingSubtitle = "by Vexy",
+    ConfigurationSaving = {
+        Enabled = true,
+        FolderName = nil,
+        FileName = "Eclipse Freemium Hub"
+    },
+    Discord = {
+        Enabled = true,
+        Invite = "4HQGgJ3FGn",
+        RememberJoins = true
+    },
+    KeySystem = true,
+    KeySettings = {
+      Title = "Eclipse Hub",
+      Subtitle = "Key System",
+      Note = "Join the Discord for key ",
+      FileName = "EclipseHub", -- It is recommended to use something unique as other scripts using Rayfield may overwrite your key file
+      SaveKey = false, -- The user's key will be saved, but if you change the key, they will be unable to use your script
+      GrabKeyFromSite = false, -- If this is true, set Key below to the RAW site you would like Rayfield to get the key from
+      Key = {"h89awu9wuirtuh"}
+   }
+})
+
+-- Notification
+Rayfield:Notify({
+    Title = "Eclipse Freemium Loaded",
+    Content = "Features Loaded.",
+    Duration = 6.5,
+    Image = 4483362458,
+})
+
+-- Main Tab
+local TabMain = Window:CreateTab("Main", 4483362458)
+
+-- Main Section
+local SectionMain = TabMain:CreateSection("Main Features")
+
+-- Walkspeed Hack
+local speed = 16
+local NormalWalkSpeed = 16
+local walkSpeedLoop = nil
+
+TabMain:CreateSlider({
+    Name = "Walkspeed Hack",
+    Range = {0, 70},
+    Increment = 1,
+    CurrentValue = speed,
+    Flag = "SpeedSlider",
+    Callback = function(value)
+        speed = value
+        if walkSpeedLoop then
+            game.Players.LocalPlayer.Character.Humanoid.WalkSpeed = speed
+        end
+    end,
+})
+
+TabMain:CreateToggle({
+    Name = "Toggle Walkspeed Hack",
+    CurrentValue = false,
+    Flag = "ToggleSpeed",
+    Callback = function(value)
+        if value then
+            walkSpeedLoop = game:GetService("RunService").Stepped:Connect(function()
+                game.Players.LocalPlayer.Character.Humanoid.WalkSpeed = speed
+            end)
+        else
+            if walkSpeedLoop then
+                walkSpeedLoop:Disconnect()
+                walkSpeedLoop = nil
+            end
+            game.Players.LocalPlayer.Character.Humanoid.WalkSpeed = NormalWalkSpeed
+        end
+    end,
+})
+
+-- No Fog
+local sky
+
+TabMain:CreateToggle({
+    Name = "No Fog",
+    CurrentValue = false,
+    Flag = "ToggleNoFog",
+    Callback = function(value)
+        game.Lighting.FogEnd = value and 0 or 1000
+        
+        if value then
+            -- Remove sky when enabled
+            sky = game.Lighting:FindFirstChild("Sky")
+            if sky then
+                sky:Destroy()
+            end
+        else
+            -- Optionally, recreate sky when disabled (if needed)
+            if not game.Lighting:FindFirstChild("Sky") then
+                sky = Instance.new("Sky")
+                sky.Parent = game.Lighting
+            end
+        end
+    end,
+})
+
+
+-- Listen for character respawn
+game.Players.LocalPlayer.CharacterAdded:Connect(function(character)
+    local humanoid = character:WaitForChild("Humanoid")
+    if isNoAnimEnabled then
+        humanoid:ChangeState(Enum.HumanoidStateType.Physics) -- Disable animations on respawn
+
+        -- Remove atmosphere
+        atmosphere = game:GetService("Lighting"):FindFirstChild("Atmosphere")
+        if atmosphere then
+            atmosphere:Destroy()
+        end
+    end
+end)
+
+
+-- Listen for character respawn
+game.Players.LocalPlayer.CharacterAdded:Connect(function(character)
+    local humanoid = character:WaitForChild("Humanoid")
+    if isNoAnimEnabled then
+        humanoid:ChangeState(Enum.HumanoidStateType.Physics) -- Disable animations on respawn
+
+        -- Remove atmosphere
+        atmosphere = game:GetService("Lighting"):FindFirstChild("Atmosphere")
+        if atmosphere then
+            atmosphere:Destroy()
+        end
+    end
+end)
+
+
+-- Infinite Jump
+local infiniteJumpConnection
+TabMain:CreateToggle({
+    Name = "Infinite Jump",
+    CurrentValue = false,
+    Flag = "ToggleInfiniteJump",
+    Callback = function(value)
+        if value then
+            infiniteJumpConnection = game:GetService("UserInputService").InputBegan:Connect(function(input, gameProcessedEvent)
+                if input.KeyCode == Enum.KeyCode.Space and not gameProcessedEvent then
+                    local character = game.Players.LocalPlayer.Character
+                    if character then
+                        character:FindFirstChildOfClass('Humanoid'):ChangeState('Jumping')
+                    end
+                end
+            end)
+        else
+            if infiniteJumpConnection then
+                infiniteJumpConnection:Disconnect()
+                infiniteJumpConnection = nil
+            end
+        end
+    end,
+})
+
+-- No Anim Section
+local SectionNoAnim = TabMain:CreateSection("Animation Features")
+
+-- No Anim
+local isNoAnimEnabled = false
+
+TabMain:CreateToggle({
+    Name = "No Anim (Not Working)",
+    CurrentValue = false,
+    Flag = "ToggleNoAnim",
+    Callback = function(value)
+        isNoAnimEnabled = value
+        local character = game.Players.LocalPlayer.Character
+        if character then
+            local humanoid = character:FindFirstChildOfClass("Humanoid")
+            if humanoid then
+                if isNoAnimEnabled then
+                    humanoid:ChangeState(Enum.HumanoidStateType.Physics) -- Disable animations
+                else
+                    humanoid:ChangeState(Enum.HumanoidStateType.GettingUp) -- Re-enable default behavior
+                end
+            end
+        end
+    end,
+})
+
+-- Listen for character respawn
+game.Players.LocalPlayer.CharacterAdded:Connect(function(character)
+    local humanoid = character:WaitForChild("Humanoid")
+    if isNoAnimEnabled then
+        humanoid:ChangeState(Enum.HumanoidStateType.Physics) -- Disable animations on respawn
+    end
+end)
+
+
+-- No Ragdoll
+local isNoRagdollEnabled = false
+
+TabMain:CreateToggle({
+    Name = "No Ragdoll",
+    CurrentValue = false,
+    Flag = "ToggleNoRagdoll",
+    Callback = function(value)
+        isNoRagdollEnabled = value
+        local character = game.Players.LocalPlayer.Character
+        if character then
+            local humanoid = character:FindFirstChildOfClass("Humanoid")
+            if humanoid then
+                humanoid.BreakJointsOnDeath = not isNoRagdollEnabled
+            end
+        end
+    end,
+})
+
+-- Listen for character respawn
+game.Players.LocalPlayer.CharacterAdded:Connect(function(character)
+    local humanoid = character:WaitForChild("Humanoid")
+    humanoid.BreakJointsOnDeath = not isNoRagdollEnabled
+end)
+
+
+-- ESP Tab
+local TabESP = Window:CreateTab("ESP", 4483362458)
+local SectionESP = TabESP:CreateSection("ESP Features")
+
+local playerESPConnections = {}
+local playerESPBoxes = {}
+local active = false
+local maxDistance = 1600 -- Define the maximum distance for ESP rendering
+
+local TogglePlayerESP = TabESP:CreateToggle({
+    Name = "Toggle PlayerESP",
+    CurrentValue = false,
+    Flag = "Toggle10",
+    Callback = function(value)
+        local runService = game:GetService("RunService")
+        local players = game:GetService("Players")
+        local localPlayer = players.LocalPlayer
+        active = value
+
+        -- Function to clear existing ESP elements and connections
+        local function clearESP()
+            -- Disconnect all connections
+            for _, connection in ipairs(playerESPConnections) do
+                connection:Disconnect()
+            end
+            playerESPConnections = {}
+
+            -- Destroy all ESP elements
+            for _, espElement in pairs(playerESPBoxes) do
+                if espElement and espElement.Parent then
+                    espElement:Destroy()
+                end
+            end
+            playerESPBoxes = {}
+        end
+
+        -- If toggled off, clear everything and stop updating
+        if not value then
+            clearESP()
+            return
+        end
+
+        -- Function to create ESP for a player's character
+        local function createESPForCharacter(player, character)
+            if player == localPlayer then return end -- Skip the local player
+
+            local humanoid = character:FindFirstChildOfClass("Humanoid")
+            local head = character:FindFirstChild("Head")
+            if not humanoid or not head then return end
+
+            local billboardGui = Instance.new("BillboardGui")
+            billboardGui.Size = UDim2.new(0, 200, 0, 50)
+            billboardGui.Adornee = head
+            billboardGui.StudsOffset = Vector3.new(0, 5, 0)
+            billboardGui.AlwaysOnTop = true
+            billboardGui.Parent = head
+
+            local textLabel = Instance.new("TextLabel")
+            textLabel.Size = UDim2.new(1, 0, 1, 0)
+            textLabel.BackgroundTransparency = 1
+            textLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
+            textLabel.TextStrokeTransparency = 0.5
+            textLabel.TextScaled = true
+            textLabel.Text = "Loading..."
+            textLabel.Parent = billboardGui
+
+            playerESPBoxes[player.Name] = billboardGui
+
+            -- Function to update ESP display
+            local function updateESP()
+                if not character.Parent or not head then
+                    billboardGui:Destroy()
+                    playerESPBoxes[player.Name] = nil
+                    return
+                end
+
+                local playerDistance = (localPlayer.Character and localPlayer.Character:FindFirstChild("HumanoidRootPart") and 
+                    (localPlayer.Character.HumanoidRootPart.Position - character.HumanoidRootPart.Position).Magnitude) or 0
+
+                textLabel.Text = string.format("%s\nDistance: %d studs", player.Name, math.floor(playerDistance))
+            end
+
+            -- Update ESP every frame
+            local connection = runService.RenderStepped:Connect(updateESP)
+            table.insert(playerESPConnections, connection)
+
+            -- Clean up if the character is removed from the game
+            character.AncestryChanged:Connect(function(_, parent)
+                if not parent then
+                    billboardGui:Destroy()
+                    connection:Disconnect()
+                    playerESPBoxes[player.Name] = nil
+                end
+            end)
+        end
+
+        -- Function to handle ESP for players based on proximity
+        local function handlePlayerESP()
+            for _, player in pairs(players:GetPlayers()) do
+                if player == localPlayer then continue end
+
+                local character = player.Character
+                if character and character:FindFirstChild("HumanoidRootPart") then
+                    local head = character:FindFirstChild("Head")
+                    local distance = (localPlayer.Character.HumanoidRootPart.Position - character.HumanoidRootPart.Position).Magnitude
+
+                    if distance <= maxDistance then
+                        if not playerESPBoxes[player.Name] then
+                            createESPForCharacter(player, character)
+                        end
+                    else
+                        if playerESPBoxes[player.Name] then
+                            playerESPBoxes[player.Name]:Destroy()
+                            playerESPBoxes[player.Name] = nil
+                        end
+                    end
+                end
+            end
+        end
+
+        -- Continuously check for players within proximity
+        local proximityConnection = runService.RenderStepped:Connect(handlePlayerESP)
+        table.insert(playerESPConnections, proximityConnection)
+
+        -- Clean up ESP when toggled off
+        local function handlePlayerRemoving(player)
+            if playerESPBoxes[player.Name] then
+                playerESPBoxes[player.Name]:Destroy()
+                playerESPBoxes[player.Name] = nil
+            end
+        end
+
+        -- Listen for players being removed from the game
+        local playerRemovingConnection = players.PlayerRemoving:Connect(handlePlayerRemoving)
+        table.insert(playerESPConnections, playerRemovingConnection)
+    end,
+})
+
+-- Auto Farm Tab
+local TabAutoFarm = Window:CreateTab("Auto Farm", 4483362458)
+local SectionAutoFarm = TabAutoFarm:CreateSection("Auto Farming Features")
+
+-- Rifle Autofarm
+TabAutoFarm:CreateToggle({
+    Name = "Rifle Autofarm",
+    CurrentValue = false,
+    Flag = "ToggleRifleAutofarm",
+    Callback = function(value)
+        -- Implement your autofarm logic here
+    end,
+})
+
+local TabChests = Window:CreateTab("Chests ESP", 4483362458)
+local SectionChests = TabChests:CreateSection("Chest ESP")
+
+-- Variables to store active ESP elements
+local activeESP = {}
+
+-- Function to create chest ESP
+local function createChestESP(chestType, color)
+    return function(Value)
+        -- Cleanup existing ESP if toggled off
+        if not Value then
+            for _, gui in pairs(activeESP[chestType] or {}) do
+                gui:Destroy()
+            end
+            activeESP[chestType] = {}
+            return
+        end
+
+        -- Function to get the color for the chest
+        local function getChestColor(proximityPrompt)
+            local objectText = proximityPrompt.ObjectText
+            if objectText:find(chestType) then
+                return color
+            end
+        end
+
+        -- Function to add ESP to a chest
+        local function AddChestToESP(chest)
+            if not chest.PrimaryPart then return end
+
+            local randomPart = chest.PrimaryPart
+            local proximityPrompt = randomPart:FindFirstChildOfClass("ProximityPrompt")
+            if not proximityPrompt or not proximityPrompt.ObjectText:find(chestType) then
+                return
+            end
+
+            local chestColor = getChestColor(proximityPrompt)
+            if not chestColor then return end
+
+            local billboardGui = Instance.new("BillboardGui")
+            billboardGui.Size = UDim2.new(0, 100, 0, 50)
+            billboardGui.Adornee = randomPart
+            billboardGui.StudsOffset = Vector3.new(0, chest:GetExtentsSize().Y + 1, 0)
+            billboardGui.AlwaysOnTop = true
+
+            local textLabel = Instance.new("TextLabel")
+            textLabel.Size = UDim2.new(1, 0, 1, 0)
+            textLabel.BackgroundTransparency = 1
+            textLabel.TextColor3 = chestColor
+            textLabel.TextStrokeTransparency = 0
+            textLabel.TextScaled = true
+            textLabel.Text = proximityPrompt.ObjectText
+            textLabel.Parent = billboardGui
+            billboardGui.Parent = randomPart
+
+            -- Store the GUI in the activeESP table
+            activeESP[chestType] = activeESP[chestType] or {}
+            table.insert(activeESP[chestType], billboardGui)
+
+            -- Update distance label
+            local player = game.Players.LocalPlayer
+            local character = player.Character or player.CharacterAdded:Wait()
+
+            local updateConnection
+            updateConnection = game:GetService("RunService").RenderStepped:Connect(function()
+                if chest.Parent and character and character:FindFirstChild("HumanoidRootPart") then
+                    local humanoidRootPart = character:FindFirstChild("HumanoidRootPart")
+                    local distance = (randomPart.Position - humanoidRootPart.Position).Magnitude
+                    textLabel.Text = proximityPrompt.ObjectText .. " | " .. math.floor(distance) .. " studs"
+                else
+                    billboardGui:Destroy()
+                    updateConnection:Disconnect()
+                end
+            end)
+        end
+
+        -- Function to find and mark chests
+        local function findAndMarkChests()
+            for _, chest in pairs(workspace.Effects:GetChildren()) do
+                if chest:IsA("Model") and chest:FindFirstChildWhichIsA("BasePart") then
+                    AddChestToESP(chest)
+                end
+            end
+        end
+
+        -- Initial marking of chests
+        findAndMarkChests()
+
+        -- Connect to `DescendantAdded` to add new chests dynamically
+        workspace.Effects.DescendantAdded:Connect(function(descendant)
+            if descendant:IsA("Model") and descendant:FindFirstChildWhichIsA("BasePart") then
+                AddChestToESP(descendant)
+            end
+        end)
+    end
+end
+
+
+
+local ToggleLegendary = TabChests:CreateToggle({
+    Name = "Toggle Legendary Chest",
+    CurrentValue = false,
+    Flag = "Toggle6",
+    Callback = createChestESP("Legendary", Color3.fromRGB(255, 215, 0))
+})
+
+local ToggleRare = TabChests:CreateToggle({
+    Name = "Toggle Rare Chest",
+    CurrentValue = false,
+    Flag = "Toggle7",
+    Callback = createChestESP("Rare", Color3.fromRGB(0, 0, 255))
+})
+
+local ToggleUncommon = TabChests:CreateToggle({
+    Name = "Toggle Uncommon Chest",
+    CurrentValue = false,
+    Flag = "Toggle8",
+    Callback = createChestESP("Uncommon", Color3.fromRGB(0, 255, 0))
+})
+
+local ToggleCommon = TabChests:CreateToggle({
+    Name = "Toggle Common Chest",
+    CurrentValue = false,
+    Flag = "Toggle9",
+    Callback = createChestESP("Common", Color3.fromRGB(169, 169, 169))
+})
